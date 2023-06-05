@@ -32,6 +32,7 @@ export default defineConfig({
   title: "Brian's Notes",
   description: "A VitePress Site",
   srcDir: './' + SRC_DIR,
+  base: '/notes/',
   markdown: {
     theme: 'Nord'
   },
