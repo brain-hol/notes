@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { Plugin, UserConfig } from 'vite'
 import { DefaultTheme, SiteConfig } from 'vitepress'
@@ -14,9 +14,6 @@ export function VitePluginVitepressNotesSidebar(opts: Options): Plugin {
         configureServer({ watcher, restart }) {
             const markdownWatcher = watcher.add('*.md')
             markdownWatcher.on('all', async (event, path) => {
-                if (event === 'change') {
-                    return
-                }
                 try {
                     await restart()
                 } catch { }
@@ -38,6 +35,7 @@ export function VitePluginVitepressNotesSidebar(opts: Options): Plugin {
 function getCategories(rootPath: string, ignore: string[]): string[] {
     return readdirSync(rootPath)
         .filter(entry => statSync(join(rootPath, entry)).isDirectory() && !ignore.includes(entry))
+        .sort()
 }
 
 function createSidebarMulti(rootPath: string, ignore: string[] = []): DefaultTheme.SidebarMulti {
@@ -50,27 +48,40 @@ function createSidebarMulti(rootPath: string, ignore: string[] = []): DefaultThe
 
 function createSidebarItems(rootPath: string, ...restPath: string[]): DefaultTheme.SidebarItem[] {
     return readdirSync(join(rootPath, ...restPath))
-        .filter(entry => statSync(join(rootPath, ...restPath, entry)).isDirectory() || entry.endsWith('.md'))
+        .filter(entry => {
+            return statSync(join(rootPath, ...restPath, entry)).isDirectory()
+                || entry.endsWith('.md')
+                && entry !== 'index.md'
+        })
         .map<DefaultTheme.SidebarItem>(entry => {
             if (statSync(join(rootPath, ...restPath, entry)).isDirectory()) {
                 return {
-                    text: entry,
-                    collapsed: false,
+                    text: replaceHyphensAndCapitalize(entry),
+                    collapsed: true,
                     items: createSidebarItems(rootPath, ...restPath, entry)
                 }
             }
             const fileName = entry.slice(0, entry.lastIndexOf('.'))
+            const fileContents = readFileSync(join(rootPath, ...restPath, entry), 'utf-8')
+            const pageTitle = fileContents.match(/^# (.+)/m)?.[1] ?? entry.slice(0, entry.lastIndexOf('.'))
             return {
-                text: fileName,
-                link: '/' + [...restPath, fileName !== 'index' ? fileName : '' ].join('/')
+                text: pageTitle,
+                link: '/' + [...restPath, fileName].join('/')
             }
         })
+        .sort((a, b) => a.text!.localeCompare(b.text!))
 }
 
 function createNav(rootPath: string, ignore: string[] = []): DefaultTheme.NavItem[] {
     return getCategories(rootPath, ignore)
         .map<DefaultTheme.NavItem>(category => ({
-            text: category,
-            link: '/' + category
+            text: replaceHyphensAndCapitalize(category),
+            link: '/' + category + '/'
         }))
 }
+
+function replaceHyphensAndCapitalize(input: string): string {
+    const words = input.split('-');
+    const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+    return capitalizedWords.join(' ');
+};

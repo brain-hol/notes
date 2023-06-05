@@ -1,17 +1,17 @@
-import { readdirSync, statSync } from "node:fs"
-import { resolve } from "node:path"
-import { DefaultTheme, defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress'
 import { VitePluginVitepressNotesSidebar } from "./sidebar"
-// import { getSidebar } from 'vitepress-plugin-auto-sidebar'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Brian's Notes",
   description: "A VitePress Site",
   base: '/notes/',
-  // markdown: {
-  //   theme: 'Nord'
-  // },
+  markdown: {
+    theme: 'nord',
+    config: (md) => {
+      md.use(require('markdown-it-footnote'))
+    }
+  },
   vite: {
     plugins: [
       VitePluginVitepressNotesSidebar({
@@ -20,9 +20,11 @@ export default defineConfig({
     ]
   },
   themeConfig: {
-    // sidebar: createSidebarItemFromFolder(resolve(process.cwd(), SRC_DIR)),
+    search: {
+      provider: 'local'
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/brain-hol/notes' }
-    ]
+    ],
   }
 })
