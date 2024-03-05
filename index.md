@@ -17,5 +17,5 @@ hero:
 features:
   - title: Journey Testing
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-    link: /journey-testing/overview
+    link: /journey-testing/
 ---

@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: "Brian's Notes",
-    description: "A VitePress Site",
+    description: "",
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
@@ -13,7 +13,7 @@ export default defineConfig({
             {
                 text: 'Journey Testing',
                 items: [
-                    { text: 'Overview', link: '/journey-testing/overview' },
+                    { text: 'Overview', link: '/journey-testing/' },
                 ]
             }
         ],
