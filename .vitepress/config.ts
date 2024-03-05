@@ -4,16 +4,25 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
     title: "Brian's Notes",
     description: "",
+    base: '/notes/',
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
             { text: 'Home', link: '/' },
+            { text: 'ForgeRock', link: '/journey-testing/' },
         ],
         sidebar: [
             {
-                text: 'Journey Testing',
+                text: 'ForgeRock',
                 items: [
-                    { text: 'Overview', link: '/journey-testing/' },
+                    {
+                        text: 'Journey Testing',
+                        items: [
+                            { text: 'Overview', link: '/journey-testing/' },
+                            { text: 'User Management', link: '/journey-testing/user-management' },
+                            { text: 'Next Steps', link: '/journey-testing/next-steps' },
+                        ]
+                    }
                 ]
             }
         ],
@@ -21,7 +30,7 @@ export default defineConfig({
             provider: 'local'
         },
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+            { icon: 'github', link: 'https://github.com/brain-hol/notes' }
         ]
     }
 })

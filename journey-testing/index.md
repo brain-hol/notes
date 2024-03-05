@@ -76,17 +76,85 @@ console.log(authStep.tokenId)
 
 ## Putting Them Together
 
-## User Functionality
+We end up with these two items:
+
+- AM client to handle interactions with the backend AM server
+- Vitest to handle test running, expectations, matchers, and result reporting
+
+Putting them together we end up with a pretty simple yet still powerful and flexible enough solution to test the journeys we write for AM.
+
+If we were to take the simple journey from above and start writing a test for it, we could write something like this:
 
 ```ts
-// Reset the user to a known state
-const brianTestId = 'eb8de678-d69d-4543-87cd-55153910ff46'
-await amClient.resetOathDevices(brianTestId)
-await amClient.updateUser(brianTestId, {
-	'fr-attr-date1': [],
-	description: [],
-	'fr-attr-str4': [],
+import { describe, test, expect } from 'vitest'
+import { AmClient, Journey } from '@trivir/forgerock-am-client'
+
+// If you are familiar with JUnit's or Jest's lifecycle methods, Vitest has the same
+// This will run before all the tests to setup the `AmClient` used by all the tests
+let amClient: AmClient
+beforeAll(() => {
+	amClient = new AmClient({
+		host: 'openam-example-sandbox.forgeblocks.com',
+	})
+})
+
+// Vitest's `describe` function lets us group related tests together for reporting
+describe('Login Journey', () => {
+
+	// This will run before every test in this `describe` group and setup a `Journey`
+	// to be used by each test case
+	let journey: Journey
+	beforeEach(() => {
+		journey = new Journey('Login', amClient)
+	})
+	
+	// This needs to be `async` since we will await the `journey.next` 
+	test('Should ask if user wants to remember device', async () => {
+
+		// Step 1: Username and password
+		let authStep = await journey.start()
+        let callback = authStep.getCallback().asNameCallback()
+		// We can make expectations about the Callback
+        expect(callback.getPrompt()).toEqual('User Name')
+        callback.setInput(0, 'brian_test')
+
+        callback = authStep.getCallback().asPasswordCallback()
+        expect(callback.getPrompt()).toEqual('Password')
+        callback.setInput(0, 'TriVir#1')
+		
+		// Step 2: Ask to remember this device
+        authStep = await journey.next(authStep)
+        callback = authStep.getCallback().asTextOutputCallback()
+        expect(callback.getMessage()).toContain('remembered')
+        callback = authStep.getCallback().asChoiceCallback()
+        callback.setInput(0, 1)
+		
+		// Done, the journey should have succeeded
+		authStep = await journey.next(authStep)
+		// We can also make expectations about the result of `journey.next`
+		expect(authStep.tokenId).not.toBeNull()
+	})
 })
 ```
 
-## Next Steps
+Running this test, if the journey were successful, you would see something like the following reported by Vitest:
+
+```sh
+pnpm test
+
+# > @trivir/forgerock-am-client@0.1.0 test C:\Users\brian\Work\forgerock-am-client
+# > vitest run
+# 
+# 
+#  RUN  v1.3.0 C:/Users/brian/Work/forgerock-am-client
+# 
+#  ✓ tests/first.test.ts (1) 1023ms
+#    ✓ Login Journey (1) 1022ms
+#      ✓ Should ask if user wants to remember device 1022ms
+# 
+#  Test Files  1 passed (1)
+#       Tests  1 passed (1)
+#    Start at  08:50:39
+#    Duration  1.51s (transform 179ms, setup 0ms, collect 239ms, tests 1.02s, environment 0ms, prepare 84ms)
+
+```
