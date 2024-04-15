@@ -22,6 +22,12 @@ export default defineConfig({
                             { text: 'User Management', link: '/journey-testing/user-management' },
                             { text: 'Next Steps', link: '/journey-testing/next-steps' },
                         ]
+                    },
+                    {
+                        text: 'Node Notes',
+                        items: [
+                            { text: 'Identify Existing User', link: '/node-notes/identify-existing-user'}
+                        ]
                     }
                 ]
             }
