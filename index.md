@@ -16,6 +16,9 @@ hero:
 
 features:
   - title: Journey Testing
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Notes about ForgeRock journey testing
     link: /journey-testing/
+  - title: Linux
+    details: Slowly migrating my Obsidian notes to this platform
+    link: /linux/service-accounts
 ---

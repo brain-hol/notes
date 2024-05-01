@@ -10,6 +10,7 @@ export default defineConfig({
         nav: [
             { text: 'Home', link: '/' },
             { text: 'ForgeRock', link: '/journey-testing/' },
+            { text: 'Linux', link: '/linux/service-accounts' },
         ],
         sidebar: [
             {
@@ -29,6 +30,15 @@ export default defineConfig({
                             { text: 'Identify Existing User', link: '/node-notes/identify-existing-user'}
                         ]
                     }
+                ]
+            },
+            {
+                text: 'Linux',
+                items: [
+                    {
+                        text: 'Service Account',
+                        link: '/linux/service-accounts',
+                    },
                 ]
             }
         ],
